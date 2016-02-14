@@ -47,17 +47,22 @@
 ;;;###autoload
 (define-minor-mode edbi-minor-mode
   "Minor mode for using Edbi from current buffer."
-  :lighter " Edbi")
+  :lighter " Edbi"
+  (if edbi-minor-mode
+      (edbi-minor-mode-update-connection)))
 
-(defun edbi-minor-mode-execute (sql)
-  "Execute SQL statement."
-  (interactive "sSQL: ")
+(defun edbi-minor-mode-update-connection ()
   (unless edbi-minor-mode-connection
     (let ((buffer (get-buffer edbi:dbview-buffer-name)))
       (unless buffer
         (error "Unable to find %s buffer" edbi:dbview-buffer-name))
       (setq edbi-minor-mode-connection
-            (buffer-local-value 'edbi:connection buffer))))
+            (buffer-local-value 'edbi:connection buffer)))))
+
+(defun edbi-minor-mode-execute (sql)
+  "Execute SQL statement."
+  (interactive "sSQL: ")
+  (edbi-minor-mode-update-connection)
   (unless edbi-minor-mode-result-buffer
     (setq edbi-minor-mode-result-buffer
           (generate-new-buffer-name "*edbi-minor-mode-result*")))
